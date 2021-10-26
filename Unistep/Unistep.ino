@@ -1,7 +1,8 @@
-#include <Unistep2.h>
+#include <Stepper.h>
+#define STEPS 4096 //設置步進馬達旋轉一圈是多少步
 #define RELAY_IN 4  //relay input 腳位
 bool relay_able = false;
-Unistep2 stepper(14, 13, 12, 3, 4096, 1000); //設置步進馬達的步數和引腳
+Stepper stepper(STEPS, 14, 12, 13, 3); //設置步進馬達的步數和引腳
 
 
 void able_stepper(){
@@ -16,13 +17,13 @@ void disable_stepper(){
   relay_able = false;
 }
 
-void move
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   pinMode(RELAY_IN, OUTPUT);
   digitalWrite(RELAY_IN, LOW);
+  stepper.setSpeed(5);   // rpm: round per minute
 }
 
 void loop() {
@@ -47,12 +48,10 @@ void loop() {
   
 
   if(relay_able == true){
-    stepper.run();
-
-    if( stepper.stepsToGo() == 0){
-      delay(500);
-      stepper.move(4096);
-    }
+    stepper.step(360); //設置步進馬達旋轉一圈是360步,放在Loop持續旋轉
+    delay(1000);
+    stepper.step(-360);
+    delay(1000);
   }
 
   
