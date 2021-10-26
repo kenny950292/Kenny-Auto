@@ -4,8 +4,8 @@
 bool relay_able = false;
 
 // Replace with your network credentials
-const char* ssid     = "Ring-lab";
-const char* password = "ringring";
+const char* ssid     = "MIX 3";
+const char* password = "26324932";
 
 // Set web server port number to 80
 WiFiServer server(80);
