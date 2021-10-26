@@ -4,8 +4,8 @@
 bool relay_able = false;
 
 // Replace with your network credentials
-const char* ssid     = "LP33";
-const char* password = "26324932";
+const char* ssid     = "Ring-lab";
+const char* password = "ringring";
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -14,10 +14,8 @@ WiFiServer server(80);
 String header;
 
 // Auxiliar variables to store the current output state
-String pushed = "off";
+String pushing = "no";
 
-// Assign output variables to GPIO pins
-const int output5 = 5;
 
 // Current time
 unsigned long currentTime = millis();
@@ -42,20 +40,18 @@ void disable_stepper(){
 
 void push(){
   able_stepper();
-  delay(2000);
-
+  pushing = "yes";
+  
+  delay(5000);
   // TODO: implement push action
 
   disable_stepper();
+  pushing = "no";
 }
 
 void setup() {
   Serial.begin(115200);
-  // Initialize the output variables as outputs
-  pinMode(output5, OUTPUT);
   pinMode(RELAY_IN, OUTPUT);
-  // Set outputs to LOW
-  digitalWrite(output5, LOW);
   digitalWrite(RELAY_IN, LOW);
 
   // Connect to Wi-Fi network with SSID and password
@@ -100,19 +96,16 @@ void loop(){
             client.println("Content-type:text/html");
             client.println("Connection: close");
             client.println();
-            
+
             // turns the GPIOs on and off
             if (header.indexOf("GET /button/push") >= 0) {
               Serial.println("button/push");
-              pushed = "on";
+              pushing = "yes";
               push();
-            } else if (header.indexOf("GET /5/off") >= 0) {
-              /*
-              Serial.println("GPIO 5 off");
-              pushed = "off";
-              digitalWrite(output5, LOW);
-              */
-            
+            } else if (header.indexOf("GET /button/again") >= 0) {
+              pushing = "no";
+            }
+
             // Display the HTML web page
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -125,21 +118,25 @@ void loop(){
             client.println(".button2 {background-color: #77878A;}</style></head>");
             
             // Web Page Heading
-            client.println("<body><h1>ESP8266 Web Server</h1>");
+            client.println("<body><h1>Kenny's Auto Turn On</h1>");
             
             // Display current state, and ON/OFF buttons for GPIO 5  
-            client.println("<p>GPIO 5 - State " + pushed + "</p>");
-            // If the pushed is off, it displays the ON button       
-            if (pushed=="off") {
-              client.println("<p><a href=\"/5/on\"><button class=\"button\">ON</button></a></p>");
+            client.println("<p>Pushing: " + pushing + "</p>");
+                  
+            
+            if ( pushing=="no" ) {
+              client.println("<p><a href=\"/button/push\"><button class=\"button\">Push</button></a></p>");
             } else {
-              client.println("<p><a href=\"/5/off\"><button class=\"button button2\">OFF</button></a></p>");
+              client.println("<p><button class=\"button button2\">Pushing</button></p>");
             } 
                
             client.println("</body></html>");
             
             // The HTTP response ends with another blank line
             client.println();
+
+
+            
             // Break out of the while loop
             break;
           } else { // if you got a newline, then clear currentLine
@@ -152,6 +149,7 @@ void loop(){
     }
     // Clear the header variable
     header = "";
+    pushing = "";
     // Close the connection
     client.stop();
     Serial.println("Client disconnected.");
