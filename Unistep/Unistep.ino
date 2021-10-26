@@ -1,8 +1,8 @@
 #include <Stepper.h>
-#define STEPS 4096 //設置步進馬達旋轉一圈是多少步
 #define RELAY_IN 4  //relay input 腳位
 bool relay_able = false;
-Stepper stepper(STEPS, 14, 12, 13, 3); //設置步進馬達的步數和引腳
+const int stepsPerRevolution = 2048;  
+Stepper stepper(stepsPerRevolution, 14, 12, 13, 3); //設置步進馬達的步數和引腳
 
 
 void able_stepper(){
@@ -48,10 +48,12 @@ void loop() {
   
 
   if(relay_able == true){
-    stepper.step(360); //設置步進馬達旋轉一圈是360步,放在Loop持續旋轉
+    stepper.step(stepsPerRevolution); //設置步進馬達旋轉一圈是360步,放在Loop持續旋轉
     delay(1000);
-    stepper.step(-360);
+    
+    stepper.step(-stepsPerRevolution);
     delay(1000);
+    
   }
 
   
